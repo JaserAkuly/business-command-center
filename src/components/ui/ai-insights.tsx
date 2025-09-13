@@ -17,7 +17,7 @@ interface AIInsight {
   id: string
   category: 'cash' | 'growth' | 'labor' | 'inventory' | 'risk' | 'opportunity'
   message: string
-  severity: 'low' | 'medium' | 'high' | 'critical'
+  severity: 'low' | 'medium' | 'high' | 'critical' | null
   action_data?: Record<string, unknown>
   business_date: string
   created_at: string
@@ -51,14 +51,15 @@ const severityColors = {
   low: 'bg-gray-100 text-gray-800',
   medium: 'bg-blue-100 text-blue-800',
   high: 'bg-orange-100 text-orange-800',
-  critical: 'bg-red-100 text-red-800'
+  critical: 'bg-red-100 text-red-800',
+  null: 'bg-gray-100 text-gray-800'
 }
 
 export function AIInsights({ insights, onApplyAction, className }: AIInsightsProps) {
   const sortedInsights = insights
     .sort((a, b) => {
-      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
-      return severityOrder[b.severity] - severityOrder[a.severity]
+      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1, null: 0 }
+      return severityOrder[b.severity || 'null'] - severityOrder[a.severity || 'null']
     })
     .slice(0, 4) // Show top 4 insights
 
@@ -95,7 +96,7 @@ export function AIInsights({ insights, onApplyAction, className }: AIInsightsPro
         {sortedInsights.map((insight) => {
           const Icon = categoryIcons[insight.category]
           const categoryColor = categoryColors[insight.category]
-          const severityColor = severityColors[insight.severity]
+          const severityColor = severityColors[insight.severity || 'null']
           
           return (
             <div
@@ -117,7 +118,7 @@ export function AIInsights({ insights, onApplyAction, className }: AIInsightsPro
                         variant="secondary" 
                         className={severityColor}
                       >
-                        {insight.severity}
+                        {insight.severity || 'low'}
                       </Badge>
                     </div>
                     <p className="text-sm text-foreground">
@@ -160,7 +161,7 @@ export function AIInsightCard({ insight, onApplyAction, className }: {
 }) {
   const Icon = categoryIcons[insight.category]
   const categoryColor = categoryColors[insight.category]
-  const severityColor = severityColors[insight.severity]
+  const severityColor = severityColors[insight.severity || 'null']
 
   return (
     <Card className={cn(categoryColor, className)}>
@@ -174,7 +175,7 @@ export function AIInsightCard({ insight, onApplyAction, className }: {
                   {insight.category}
                 </span>
                 <Badge variant="secondary" className={severityColor}>
-                  {insight.severity}
+                  {insight.severity || 'low'}
                 </Badge>
               </div>
               <p className="text-sm">{insight.message}</p>

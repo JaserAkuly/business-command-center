@@ -1,5 +1,7 @@
 {
-  "project": {
-    "name": "business-command-center"
+  "functions": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
   }
 }

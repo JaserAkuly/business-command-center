@@ -1,5 +1,9 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Ensure uuid-ossp functions are available
+CREATE OR REPLACE FUNCTION uuid_generate_v4()
+RETURNS uuid AS 'uuid-ossp', 'uuid_generate_v4'
+LANGUAGE C VOLATILE;
 
 -- Create custom types
 CREATE TYPE venue_type AS ENUM ('restaurant', 'bar', 'lounge');

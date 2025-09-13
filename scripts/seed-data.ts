@@ -222,12 +222,12 @@ async function generateCashEnvelopeTransactions(days: number) {
 }
 
 async function main() {
-  const seedDays = parseInt(process.env.SEED_DAYS || '30')
+  const numDays = parseInt(process.env.SEED_DAYS || '30')
   
   console.log('🚀 Starting BCC seed process...')
   
-  await seedDays(seedDays)
-  await generateCashEnvelopeTransactions(seedDays)
+  await seedDays(numDays)
+  await generateCashEnvelopeTransactions(numDays)
   
   console.log('🎉 Seeding complete!')
   process.exit(0)

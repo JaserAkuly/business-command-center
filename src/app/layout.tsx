@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import QueryProvider from '@/providers/query-provider'
 import { MainNav, MobileNav } from '@/components/ui/nav'
+import { AppErrorBoundary } from '@/components/error-boundary'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,7 +56,9 @@ export default function RootLayout({
 
             {/* Main Content */}
             <main className="container py-6 pb-20 md:pb-6">
-              {children}
+              <AppErrorBoundary>
+                {children}
+              </AppErrorBoundary>
             </main>
 
             {/* Mobile Navigation */}

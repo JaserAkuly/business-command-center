@@ -20,7 +20,7 @@ interface AIInsight {
   severity: 'low' | 'medium' | 'high' | 'critical' | null
   action_data?: any
   business_date: string
-  created_at: string
+  created_at: string | null
 }
 
 interface AIInsightsProps {

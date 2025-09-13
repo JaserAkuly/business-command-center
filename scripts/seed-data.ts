@@ -185,7 +185,7 @@ async function generateCashEnvelopeTransactions(days: number) {
       
       for (const envelope of venueEnvelopes) {
         const allocation = sale.net_sales * (envelope.target_pct / 100)
-        const balanceBefore = envelope.current_balance
+        const balanceBefore = envelope.current_balance || 0
         const balanceAfter = balanceBefore + allocation
         
         transactions.push({

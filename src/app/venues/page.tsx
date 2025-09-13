@@ -58,7 +58,7 @@ export default function VenuesPage() {
   )
 }
 
-function VenueCard({ venue }: { venue: any }) {
+function VenueCard({ venue }: { venue: { id: string; name: string; type: string } }) {
   // Get last 7 days of sales data
   const endDate = new Date().toISOString().split('T')[0]
   const startDate = new Date()

@@ -18,7 +18,7 @@ interface AIInsight {
   category: 'cash' | 'growth' | 'labor' | 'inventory' | 'risk' | 'opportunity'
   message: string
   severity: 'low' | 'medium' | 'high' | 'critical'
-  action_data?: any
+  action_data?: Record<string, unknown>
   business_date: string
   created_at: string
 }

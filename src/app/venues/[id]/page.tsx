@@ -19,7 +19,6 @@ import { formatCurrency } from '@/lib/business-logic'
 import { 
   DollarSign, 
   Users, 
-  Package, 
   TrendingUp,
   Calendar,
   ArrowLeft 

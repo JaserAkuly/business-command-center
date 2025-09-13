@@ -33,7 +33,7 @@ const envelopeColors: Record<string, string> = {
   cogs: 'border-gray-200 bg-gray-50/50'
 }
 
-const envelopeIcons: Record<string, any> = {
+const envelopeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   tax: Wallet,
   payroll: TrendingUp,
   debt: TrendingDown,
@@ -111,7 +111,7 @@ export function CashEnvelopeCard({
           
           {totalSales > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Today's allocation</span>
+              <span className="text-sm text-muted-foreground">Today&apos;s allocation</span>
               <span className="text-sm font-medium">
                 {formatCurrency(todaysAllocation)}
               </span>

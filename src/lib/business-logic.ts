@@ -1,9 +1,7 @@
 import { Database } from '@/types/supabase'
 
 type Tables = Database['public']['Tables']
-type Venue = Tables['venues']['Row']
 type CashEnvelope = Tables['cash_envelopes']['Row']
-type POSSalesDaily = Tables['pos_sales_daily']['Row']
 type GrowthGoal = Tables['growth_goals']['Row']
 
 // Cash Autopilot Logic
@@ -202,8 +200,8 @@ export interface InventoryRecommendation {
 }
 
 export function calculateInventoryRecommendations(
-  skus: any[],
-  inventoryCounts: any[],
+  skus: Array<{ id: string; name: string; category: string; cost_per_uom: number; lead_time_days: number; safety_stock: number; par: number }>,
+  inventoryCounts: Array<{ sku_id: string; on_hand: number }>,
   avgDailySales: number
 ): InventoryRecommendation[] {
   return skus.map(sku => {

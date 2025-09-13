@@ -20,7 +20,7 @@ interface OrdersSuggestRequest {
 // API functions
 export const bccApi = {
   // POS Data Ingest
-  async ingestToastData(data: any) {
+  async ingestToastData(data: Record<string, unknown>) {
     const response = await fetch('/api/supabase/functions/v1/ingest-pos-toast', {
       method: 'POST',
       headers: {
@@ -37,7 +37,7 @@ export const bccApi = {
     return response.json()
   },
 
-  async ingestAlohaData(data: any) {
+  async ingestAlohaData(data: Record<string, unknown>) {
     const response = await fetch('/api/supabase/functions/v1/ingest-pos-aloha', {
       method: 'POST',
       headers: {
@@ -371,7 +371,7 @@ export function useCreatePurchaseOrder() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async (orderData: any) => {
+    mutationFn: async (orderData: Record<string, unknown>) => {
       const { data, error } = await supabase
         .from('purchase_orders')
         .insert(orderData)

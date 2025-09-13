@@ -8,7 +8,6 @@ import {
   TrendingUp, 
   Target, 
   Calendar, 
-  DollarSign,
   CheckCircle,
   AlertTriangle 
 } from 'lucide-react'

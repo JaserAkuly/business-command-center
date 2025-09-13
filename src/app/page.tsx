@@ -1,7 +1,6 @@
 'use client'
 
 import { KPIGrid, KPICard } from '@/components/ui/kpi-card'
-import { CashEnvelopeCard } from '@/components/ui/cash-envelope-card'
 import { GrowthTracker } from '@/components/ui/growth-tracker'
 import { AIInsights } from '@/components/ui/ai-insights'
 import { useVenues, useVenueSales, useCashEnvelopes, useGrowthGoals, useAIInsights } from '@/hooks/use-bcc-api'
@@ -167,8 +166,8 @@ function VenueCashOverview({
   venue, 
   sales 
 }: { 
-  venue: any
-  sales?: any 
+  venue: { id: string; name: string; type: string }
+  sales?: { venue_id: string; net_sales: number } 
 }) {
   const { data: envelopes } = useCashEnvelopes(venue.id)
   

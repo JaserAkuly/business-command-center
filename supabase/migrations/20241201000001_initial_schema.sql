@@ -1,9 +1,4 @@
--- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
--- Ensure uuid-ossp functions are available
-CREATE OR REPLACE FUNCTION uuid_generate_v4()
-RETURNS uuid AS 'uuid-ossp', 'uuid_generate_v4'
-LANGUAGE C VOLATILE;
+-- Enable necessary extensions (gen_random_uuid is built-in)
 
 -- Create custom types
 CREATE TYPE venue_type AS ENUM ('restaurant', 'bar', 'lounge');
@@ -14,7 +9,7 @@ CREATE TYPE plan_type AS ENUM ('starter', 'premium');
 
 -- Organizations table
 CREATE TABLE orgs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -22,7 +17,7 @@ CREATE TABLE orgs (
 
 -- Plans table
 CREATE TABLE plans (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(50) NOT NULL,
     type plan_type NOT NULL,
     price_monthly DECIMAL(10,2),
@@ -36,7 +31,7 @@ INSERT INTO plans (name, type, price_monthly) VALUES
 
 -- Feature flags table
 CREATE TABLE feature_flags (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     enabled_for_starter BOOLEAN DEFAULT FALSE,
@@ -54,7 +49,7 @@ INSERT INTO feature_flags (name, description, enabled_for_starter, enabled_for_p
 
 -- Venues table
 CREATE TABLE venues (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     type venue_type NOT NULL,
@@ -65,7 +60,7 @@ CREATE TABLE venues (
 
 -- Growth goals table
 CREATE TABLE growth_goals (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     org_id UUID NOT NULL REFERENCES orgs(id) ON DELETE CASCADE,
     target_units INTEGER NOT NULL,
     horizon_years DECIMAL(3,1) NOT NULL,
@@ -77,7 +72,7 @@ CREATE TABLE growth_goals (
 
 -- Cash envelopes table
 CREATE TABLE cash_envelopes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     name VARCHAR(50) NOT NULL,
     target_pct DECIMAL(5,2) NOT NULL,
@@ -89,7 +84,7 @@ CREATE TABLE cash_envelopes (
 
 -- Cash envelope transactions table
 CREATE TABLE cash_envelope_tx (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     envelope_id UUID NOT NULL REFERENCES cash_envelopes(id) ON DELETE CASCADE,
     amount DECIMAL(12,2) NOT NULL,
     balance_before DECIMAL(12,2) NOT NULL,
@@ -101,7 +96,7 @@ CREATE TABLE cash_envelope_tx (
 
 -- POS sales daily table
 CREATE TABLE pos_sales_daily (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     business_date DATE NOT NULL,
     gross_sales DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -122,7 +117,7 @@ CREATE TABLE pos_sales_daily (
 
 -- Staffing targets table
 CREATE TABLE staffing_targets (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     target_labor_pct DECIMAL(5,2) NOT NULL DEFAULT 32.5,
     min_on_shift INTEGER NOT NULL DEFAULT 2,
@@ -134,7 +129,7 @@ CREATE TABLE staffing_targets (
 
 -- Roles and wages table
 CREATE TABLE roles_wages (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     role_name VARCHAR(100) NOT NULL,
     hourly_wage DECIMAL(8,2) NOT NULL,
@@ -145,7 +140,7 @@ CREATE TABLE roles_wages (
 
 -- Shifts table
 CREATE TABLE shifts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     role VARCHAR(100) NOT NULL,
     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -159,7 +154,7 @@ CREATE TABLE shifts (
 
 -- SKUs table
 CREATE TABLE skus (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     category VARCHAR(50) NOT NULL, -- food, liquor, nonfood
@@ -176,7 +171,7 @@ CREATE TABLE skus (
 
 -- Inventory counts table
 CREATE TABLE inventory_counts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sku_id UUID NOT NULL REFERENCES skus(id) ON DELETE CASCADE,
     business_date DATE NOT NULL,
     on_hand INTEGER NOT NULL DEFAULT 0,
@@ -188,7 +183,7 @@ CREATE TABLE inventory_counts (
 
 -- Purchase orders table
 CREATE TABLE purchase_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     vendor_name VARCHAR(255),
     order_date DATE NOT NULL,
@@ -201,7 +196,7 @@ CREATE TABLE purchase_orders (
 
 -- Purchase order lines table
 CREATE TABLE po_lines (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     po_id UUID NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
     sku_id UUID NOT NULL REFERENCES skus(id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL,
@@ -212,7 +207,7 @@ CREATE TABLE po_lines (
 
 -- AI insights table
 CREATE TABLE ai_insights (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     venue_id UUID NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
     business_date DATE NOT NULL,
     category insight_category NOT NULL,

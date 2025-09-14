@@ -55,7 +55,7 @@ export default function RootLayout({
             </header>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-6 pb-20 md:pb-6 max-w-7xl">
+            <main className="container-premium py-8 pb-24 md:pb-8 min-h-[calc(100vh-3.5rem)]">
               <AppErrorBoundary>
                 {children}
               </AppErrorBoundary>

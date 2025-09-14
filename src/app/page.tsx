@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { KPIGrid, KPICard } from '@/components/ui/kpi-card'
-import { AnimatedKPICard } from '@/components/ui/animated-kpi-card'
+import { PremiumKPICard } from '@/components/ui/premium-kpi-card'
 import { GrowthTracker } from '@/components/ui/growth-tracker'
-import { ActionableAIInsights } from '@/components/ui/actionable-ai-insights'
+import { PremiumAIInsights } from '@/components/ui/premium-ai-insights'
 import { WelcomeFlow } from '@/components/onboarding/welcome-flow'
 import { useVenues, useVenueSales, useCashEnvelopes, useGrowthGoals, useAIInsights } from '@/hooks/use-bcc-api'
 import { formatCurrency } from '@/lib/business-logic'
@@ -105,6 +105,14 @@ export default function PortfolioDashboard() {
   const dailyGrowthTarget = 1850 // Daily savings target
   const actualDailyGrowth = portfolioMetrics.totalSales * 0.085 // 8.5% to growth
   const lastWeekSales = 145600 // Previous week's sales for comparison
+  
+  // Format change percentages elegantly
+  const formatChange = (current: number, previous: number): number => {
+    if (previous === 0) return 0
+    const change = ((current - previous) / previous) * 100
+    // Round to 1 decimal place and cap extreme values
+    return Math.round(Math.min(Math.max(change, -99), 99) * 10) / 10
+  }
 
   const growthData = {
     target_units: growthGoals?.[0]?.target_units || 3,
@@ -132,102 +140,103 @@ export default function PortfolioDashboard() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header with Quick Actions */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Portfolio Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })} • {portfolioMetrics.venues} venues active
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-1">
-            <Target className="h-4 w-4" />
-            Quick Actions
-          </Button>
-          {isFirstVisit && (
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={() => setShowOnboarding(true)}
-              className="gap-1 animate-bounce-gentle"
-            >
-              <Zap className="h-4 w-4" />
-              Take Tour
+    <div className="space-y-12 animate-fade-in">
+      {/* Premium Header */}
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+              Portfolio Overview
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric'
+              })} • {portfolioMetrics.venues} locations
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {isFirstVisit && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowOnboarding(true)}
+                className="gap-2"
+              >
+                <Target className="h-4 w-4" />
+                Take Tour
+              </Button>
+            )}
+            <Button size="sm" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              View Reports
             </Button>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Animated KPI Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <AnimatedKPICard
-          title="Yesterday Net Sales"
-          value={formatCurrency(portfolioMetrics.totalSales)}
+      {/* Premium KPI Grid */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <PremiumKPICard
+          title="Revenue"
+          value={portfolioMetrics.totalSales}
           change={{ 
-            value: ((portfolioMetrics.totalSales - lastWeekSales) / lastWeekSales * 100), 
+            value: formatChange(portfolioMetrics.totalSales, lastWeekSales), 
             period: 'last week', 
             positive: portfolioMetrics.totalSales > lastWeekSales 
           }}
           icon={DollarSign}
-          status="good"
+          status={portfolioMetrics.totalSales > lastWeekSales * 1.05 ? 'success' : 'neutral'}
           delay={0}
         />
-        <AnimatedKPICard
-          title="Labor Efficiency" 
+        <PremiumKPICard
+          title="Labor Cost" 
           value={`${laborPercentage.toFixed(1)}%`}
           change={{ 
-            value: laborPercentage <= 30 ? 2.1 : -1.8, 
-            period: 'target (30%)', 
+            value: formatChange(laborPercentage, 30), 
+            period: 'target 30%', 
             positive: laborPercentage <= 30 
           }}
           icon={Users}
-          status={laborPercentage <= 30 ? 'good' : laborPercentage <= 33 ? 'warning' : 'alert'}
+          status={laborPercentage <= 30 ? 'success' : laborPercentage <= 35 ? 'warning' : 'error'}
           delay={150}
         />
-        <AnimatedKPICard
+        <PremiumKPICard
           title="Growth Fund"
-          value={formatCurrency(totalGrowthFund)}
-          subtitle={`${(totalGrowthFund / (2 * 485000) * 100).toFixed(1)}% to expansion goal`}
+          value={totalGrowthFund}
           change={{
-            value: actualDailyGrowth >= dailyGrowthTarget ? 12.3 : -3.2,
-            period: 'monthly target',
+            value: formatChange(actualDailyGrowth, dailyGrowthTarget),
+            period: 'daily target',
             positive: actualDailyGrowth >= dailyGrowthTarget
           }}
           icon={TrendingUp}
-          status={actualDailyGrowth >= dailyGrowthTarget ? 'good' : 'warning'}
+          status={actualDailyGrowth >= dailyGrowthTarget ? 'success' : 'warning'}
           delay={300}
         />
-        <AnimatedKPICard
-          title="Avg Check Size"
-          value={formatCurrency(avgCheckSize)}
+        <PremiumKPICard
+          title="Avg Check"
+          value={avgCheckSize}
           change={{ value: 4.7, period: 'last month', positive: true }}
-          icon={Calendar}
-          status="good"
+          icon={Target}
+          status="success"
           delay={450}
         />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* AI Daily Brief - Takes up 2 columns */}
-        <div className="lg:col-span-2">
-          <ActionableAIInsights 
+      {/* Premium Content Layout */}
+      <div className="grid gap-8 lg:grid-cols-5">
+        {/* AI Insights - Premium real estate */}
+        <div className="lg:col-span-3">
+          <PremiumAIInsights 
             insights={realisticAIInsights}
             onApplyAction={handleApplyInsight}
           />
         </div>
 
-        {/* Growth Tracker */}
-        <div className="space-y-6">
+        {/* Growth Tracker & Quick Stats */}
+        <div className="lg:col-span-2 space-y-6">
           <GrowthTracker 
             data={growthData}
             venueData={venueGrowthData}
@@ -236,36 +245,39 @@ export default function PortfolioDashboard() {
             }}
           />
           
-          {/* Quick Stats Card */}
-          <Card className="animate-slide-in-left" style={{ animationDelay: '600ms' }}>
-            <CardHeader>
-              <CardTitle className="text-lg">Today's Highlights</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Best Performer</span>
-                <span className="font-medium text-green-600">Shogun Sushi</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Action Items</span>
-                <span className="font-medium text-orange-600">{realisticAIInsights.filter(i => i.severity === 'high').length} urgent</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Growth Progress</span>
-                <span className="font-medium text-blue-600">On track</span>
+          {/* Executive Summary */}
+          <Card className="animate-scale-in hover-lift" style={{ animationDelay: '600ms' }}>
+            <CardContent className="p-6 space-y-4">
+              <h3 className="font-semibold text-lg">Executive Summary</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Top Performer</span>
+                  <span className="font-medium text-success">Shogun Sushi</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Priority Actions</span>
+                  <span className="font-medium">{realisticAIInsights.filter(i => i.severity === 'high').length}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Expansion Status</span>
+                  <span className="font-medium text-success">On Track</span>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Venue Performance Cards */}
+      {/* Venue Performance Overview */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">Venue Performance</h2>
-          <Button variant="outline" size="sm">View All Details</Button>
+          <h2 className="text-2xl font-semibold tracking-tight">Location Performance</h2>
+          <Button variant="outline" size="sm" className="gap-2">
+            <ArrowRight className="h-4 w-4" />
+            View Details
+          </Button>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {realisticVenueData.map((venue, index) => (
             <VenueCashOverview 
               key={venue.venue_id} 
@@ -288,20 +300,12 @@ function VenueCashOverview({
 }) {
   const { data: envelopes } = useCashEnvelopes(venue.venue_id)
   
-  // Generate realistic envelope data
-  const totalCashBalance = venue.net_sales * 0.25 + (Math.random() * 5000)
-  const growthFund = venue.net_sales * 0.08 + (Math.random() * 2000)
+  // Generate realistic data
   const laborPct = (venue.labor_cost / venue.net_sales) * 100
   
-  const getStatusColor = () => {
-    if (laborPct <= 28) return 'border-green-200 bg-green-50/30'
-    if (laborPct <= 32) return 'border-yellow-200 bg-yellow-50/30'
-    return 'border-red-200 bg-red-50/30'
-  }
-  
-  const getPerformanceIndicator = () => {
+  const getPerformanceStatus = () => {
     if (!venue?.venue_name || !venue?.net_sales) {
-      return { text: 'Good', color: 'text-blue-600' }
+      return { status: 'neutral', label: 'Normal' }
     }
     
     const avgDailySales = Object.values(REALISTIC_VENUES).find(v => 
@@ -309,61 +313,74 @@ function VenueCashOverview({
     )?.avgDailySales || 5000
     
     const performance = venue.net_sales / avgDailySales
-    if (performance >= 1.1) return { text: 'Excellent', color: 'text-green-600' }
-    if (performance >= 0.95) return { text: 'Good', color: 'text-blue-600' }
-    if (performance >= 0.8) return { text: 'Fair', color: 'text-yellow-600' }
-    return { text: 'Below Target', color: 'text-red-600' }
+    if (performance >= 1.1) return { status: 'success', label: 'Excellent' }
+    if (performance >= 0.95) return { status: 'neutral', label: 'On Track' }
+    if (performance >= 0.8) return { status: 'warning', label: 'Below Target' }
+    return { status: 'error', label: 'Attention Needed' }
   }
   
-  const performance = getPerformanceIndicator()
+  const { status, label } = getPerformanceStatus()
+  const laborStatus = laborPct <= 28 ? 'success' : laborPct <= 32 ? 'warning' : 'error'
 
   return (
     <Card className={cn(
-      "transition-all duration-500 hover:scale-105 hover:shadow-lg animate-fade-in-up",
-      getStatusColor()
+      "hover-lift animate-fade-in-up group cursor-pointer",
+      status === 'success' && "status-success",
+      status === 'warning' && "status-warning", 
+      status === 'error' && "status-error",
+      status === 'neutral' && "border hover:shadow-sm"
     )} style={{ animationDelay: `${delay}ms` }}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-sm">{venue.venue_name}</h3>
-          <div className="flex items-center gap-1">
-            <div className={cn("w-2 h-2 rounded-full", 
-              laborPct <= 28 ? 'bg-green-500' : 
-              laborPct <= 32 ? 'bg-yellow-500' : 'bg-red-500'
-            )} />
-          </div>
-        </div>
-        
-        <div className="space-y-2 text-xs">
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Yesterday Sales</span>
-            <span className="font-bold text-lg">{formatCurrency(venue.net_sales)}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Labor Cost</span>
-            <span className={cn("font-medium",
-              laborPct <= 28 ? 'text-green-600' : 
-              laborPct <= 32 ? 'text-yellow-600' : 'text-red-600'
-            )}>
-              {laborPct.toFixed(1)}%
-            </span>
+      <CardContent className="p-5">
+        <div className="space-y-4">
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <h3 className="font-semibold text-sm leading-tight">
+                {venue.venue_name?.replace(/([A-Z])/g, ' $1').trim()}
+              </h3>
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  laborStatus === 'success' && "bg-success",
+                  laborStatus === 'warning' && "bg-warning",
+                  laborStatus === 'error' && "bg-destructive"
+                )} />
+                <span className="text-xs text-muted-foreground">{label}</span>
+              </div>
+            </div>
           </div>
           
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Growth Fund</span>
-            <span className="font-medium text-blue-600">{formatCurrency(growthFund)}</span>
+          {/* Key Metric - Revenue */}
+          <div className="space-y-1">
+            <div className="text-2xl font-bold">
+              {formatCurrency(venue.net_sales)}
+            </div>
+            <div className="text-xs text-muted-foreground">Yesterday's Revenue</div>
           </div>
           
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Guests</span>
-            <span className="font-medium">{venue.guests}</span>
-          </div>
-          
-          <div className="pt-2 border-t border-border/50">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Performance</span>
-              <span className={cn("font-medium text-xs", performance.color)}>
-                {performance.text}
+          {/* Secondary Metrics */}
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Labor</span>
+              <span className={cn(
+                "font-medium",
+                laborStatus === 'success' && "text-success",
+                laborStatus === 'warning' && "text-warning",
+                laborStatus === 'error' && "text-destructive"
+              )}>
+                {laborPct.toFixed(1)}%
+              </span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Guests</span>
+              <span className="font-medium">{venue.guests?.toLocaleString()}</span>
+            </div>
+            
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Avg Check</span>
+              <span className="font-medium">
+                {formatCurrency(venue.guests > 0 ? venue.net_sales / venue.guests : 0)}
               </span>
             </div>
           </div>

@@ -13,13 +13,10 @@ if (!supabaseAnonKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
+// Admin client - only available server-side
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseServiceKey) {
-  throw new Error('Missing env.SUPABASE_SERVICE_ROLE_KEY')
-}
-
-export const supabaseAdmin = createClient<Database>(
+export const supabaseAdmin = supabaseServiceKey ? createClient<Database>(
   supabaseUrl,
   supabaseServiceKey,
   {
@@ -28,4 +25,4 @@ export const supabaseAdmin = createClient<Database>(
       persistSession: false
     }
   }
-)
+) : null

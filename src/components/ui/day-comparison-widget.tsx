@@ -69,13 +69,16 @@ const generateComparisonData = (): {
 }
 
 const formatCurrency = (value: number): string => {
-  if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
-  if (value >= 1000) return `$${(value / 1000).toFixed(1)}K`
-  return `$${Math.round(value).toLocaleString()}`
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value)
 }
 
 const formatPercentage = (value: number): string => {
-  return `${value.toFixed(1)}%`
+  return `${Math.ceil(value)}%`
 }
 
 const calculateChange = (current: number, comparison: number): { value: number; positive: boolean } => {

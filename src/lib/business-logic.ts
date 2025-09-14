@@ -255,16 +255,14 @@ export function calculateInventoryRecommendations(
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(amount)
 }
 
 export function formatPercentage(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'percent',
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1
-  }).format(value / 100)
+  return `${Math.ceil(value)}%`
 }
 
 export function getVarianceColor(variancePct: number): string {

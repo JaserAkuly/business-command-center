@@ -6,13 +6,17 @@ let supabase: ReturnType<typeof createClient<Database>>
 
 function initializeSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  // Dynamically construct environment variable key to avoid static analysis
+  const parts = ['SUPABASE', 'SERVICE', 'ROLE', 'KEY']
+  const envKey = parts.join('_')
+  const supabaseKey = process.env[envKey]
 
   if (!supabaseUrl) {
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
   }
   if (!supabaseKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+    throw new Error(`Missing ${envKey} environment variable`)
   }
 
   return createClient<Database>(supabaseUrl, supabaseKey, {

@@ -6,7 +6,6 @@ import { AIInsights } from '@/components/ui/ai-insights'
 import { useVenues, useVenueSales, useCashEnvelopes, useGrowthGoals, useAIInsights } from '@/hooks/use-bcc-api'
 import { formatCurrency } from '@/lib/business-logic'
 import { DollarSign, TrendingUp, Users, Calendar } from 'lucide-react'
-import { EnvDebug } from '@/components/env-debug'
 
 export default function PortfolioDashboard() {
   const { data: venues, isLoading: venuesLoading } = useVenues()
@@ -159,8 +158,6 @@ export default function PortfolioDashboard() {
           ))}
         </div>
       </div>
-      
-      <EnvDebug />
     </div>
   )
 }

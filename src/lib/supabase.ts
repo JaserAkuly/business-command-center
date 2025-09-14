@@ -14,15 +14,21 @@ if (!supabaseAnonKey) {
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
 // Admin client - only available server-side
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-export const supabaseAdmin = supabaseServiceKey ? createClient<Database>(
-  supabaseUrl,
-  supabaseServiceKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+export const getSupabaseAdmin = () => {
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseServiceKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for admin operations')
   }
-) : null
+  
+  return createClient<Database>(
+    supabaseUrl!,
+    supabaseServiceKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}

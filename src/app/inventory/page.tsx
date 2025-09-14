@@ -61,8 +61,30 @@ export default function InventoryPage() {
   const totalValue = INVENTORY_DATA.reduce((sum, item) => sum + (item.currentStock * item.cost), 0)
 
   const handleReorder = (itemId: string) => {
-    console.log('Reordering item:', itemId)
-    // Would integrate with ordering system
+    const item = INVENTORY_DATA.find(i => i.id === itemId)
+    if (item) {
+      const reorderAmount = Math.max(0, item.parLevel - item.currentStock)
+      const cost = reorderAmount * item.cost
+      alert(`Reorder initiated for ${item.name}\n\n• Quantity: ${reorderAmount} units\n• Cost: ${formatCurrency(cost)}\n• Supplier: Auto-selected\n• Expected delivery: 2-3 business days\n\n✅ Order sent to supplier!`)
+    }
+  }
+
+  const handleGenerateOrders = () => {
+    const orderCount = criticalItems.length + warningItems.length
+    const totalOrderValue = [...criticalItems, ...warningItems].reduce((sum, item) => {
+      const reorderAmount = Math.max(0, item.parLevel - item.currentStock)
+      return sum + (reorderAmount * item.cost)
+    }, 0)
+    
+    alert(`Generate All Orders\n\n• ${orderCount} items to reorder\n• Total value: ${formatCurrency(totalOrderValue)}\n• Orders will be sent to multiple suppliers\n• Average delivery: 2-3 days\n\n✅ All orders generated and sent!`)
+  }
+
+  const handleImportOrders = () => {
+    alert('Import Orders\n\nConnect with:\n• Sysco EDI\n• US Foods API\n• Excel/CSV upload\n• Email integration\n\n📊 Import existing orders to track delivery status.')
+  }
+
+  const handleManageSuppliers = () => {
+    alert('Supplier Management\n\nFeatures:\n• Contact information\n• Pricing agreements\n• Delivery schedules\n• Performance metrics\n• Contract terms\n\n🔧 Manage supplier relationships.')
   }
 
   return (
@@ -76,11 +98,11 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleImportOrders}>
             <Package className="h-4 w-4" />
             Import Orders
           </Button>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={handleGenerateOrders}>
             <ShoppingCart className="h-4 w-4" />
             Generate Orders
           </Button>
@@ -164,7 +186,7 @@ export default function InventoryPage() {
                   <Package className="h-5 w-5" />
                   <span>Inventory Status</span>
                 </div>
-                <Button size="sm" className="gap-1">
+                <Button size="sm" className="gap-1" onClick={handleGenerateOrders}>
                   <ShoppingCart className="h-4 w-4" />
                   Generate All Orders
                 </Button>
@@ -256,7 +278,7 @@ export default function InventoryPage() {
               
               <div className="pt-4 border-t">
                 <div className="text-xs text-muted-foreground mb-2">Last sync: 1 hour ago</div>
-                <Button variant="outline" size="sm" className="w-full gap-2">
+                <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleManageSuppliers}>
                   <Package className="h-4 w-4" />
                   Manage Suppliers
                 </Button>

@@ -78,7 +78,7 @@ const formatCurrency = (value: number): string => {
 }
 
 const formatPercentage = (value: number): string => {
-  return `${Math.ceil(value)}%`
+  return `${Math.round(value)}%`
 }
 
 const calculateChange = (current: number, comparison: number): { value: number; positive: boolean } => {

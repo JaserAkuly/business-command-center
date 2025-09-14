@@ -106,8 +106,32 @@ export default function GrowthPage() {
   const currentMonthly = 18750.00 // Actual monthly savings
 
   const handleAccelerateFunding = (goalId: string) => {
-    console.log('Accelerating funding for goal:', goalId)
-    // Would integrate with financial planning system
+    const goal = GROWTH_GOALS.find(g => g.id === goalId)
+    if (goal) {
+      const remainingFunding = goal.estimatedCost - goal.currentFunding
+      const monthsToComplete = Math.ceil(remainingFunding / currentMonthly)
+      alert(`Accelerate Funding: ${goal.title}\n\n• Remaining: ${formatCurrency(remainingFunding)}\n• Current pace: ${monthsToComplete} months\n• Suggested acceleration:\n  - Increase savings to ${formatCurrency(monthlyTarget)}/month\n  - Complete in ${Math.ceil(remainingFunding / monthlyTarget)} months\n\n💡 Consider: SBA loans at 5.2% APR`)
+    }
+  }
+
+  const handleOptimizeFunding = () => {
+    alert('Optimize Portfolio Funding\n\nRecommendations:\n• Prioritize Downtown Sports Bar (highest ROI)\n• Defer Speak Easy renovation (lowest urgency)\n• Increase monthly savings by 33%\n• Consider SBA financing for large projects\n\n📈 Projected completion: 18 months earlier')
+  }
+
+  const handleMarketAnalysis = () => {
+    alert('Market Analysis Report\n\n🔍 Key Insights:\n• Downtown foot traffic up 23%\n• Construction costs rising 8% quarterly\n• Prime locations 15% premium\n• Competitor expansion in suburbs\n\n📊 Full report includes demographics, trends, and site recommendations')
+  }
+
+  const handleNewGoal = () => {
+    alert('Create New Growth Goal\n\nGoal Types:\n• New venue acquisition\n• Existing location expansion\n• Equipment & renovation\n• Technology upgrade\n• Market expansion\n\n✨ AI will help estimate costs and timeline')
+  }
+
+  const handlePortfolioSettings = () => {
+    alert('Portfolio Settings\n\nConfigure:\n• Funding allocation rules\n• Risk tolerance levels\n• ROI thresholds\n• Growth timeline preferences\n• Financing preferences\n\n⚙️ Customize growth strategy')
+  }
+
+  const handleViewFullAnalysis = () => {
+    alert('Full Market Intelligence\n\n📈 Comprehensive analysis:\n• Demographic trends\n• Competition mapping\n• Site selection criteria\n• Revenue projections\n• Risk assessments\n• Financing options\n\n💼 Generate detailed expansion plan')
   }
 
   return (
@@ -121,11 +145,11 @@ export default function GrowthPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleMarketAnalysis}>
             <Target className="h-4 w-4" />
             Market Analysis
           </Button>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={handleNewGoal}>
             <Building2 className="h-4 w-4" />
             New Goal
           </Button>
@@ -209,7 +233,7 @@ export default function GrowthPage() {
                   <Target className="h-5 w-5" />
                   <span>Active Growth Goals</span>
                 </div>
-                <Button size="sm" className="gap-1">
+                <Button size="sm" className="gap-1" onClick={handleOptimizeFunding}>
                   <TrendingUp className="h-4 w-4" />
                   Optimize Funding
                 </Button>
@@ -325,7 +349,7 @@ export default function GrowthPage() {
               
               <div className="pt-4 border-t">
                 <div className="text-xs text-muted-foreground mb-2">Updated: 2 hours ago</div>
-                <Button variant="outline" size="sm" className="w-full gap-2">
+                <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleViewFullAnalysis}>
                   <TrendingUp className="h-4 w-4" />
                   View Full Analysis
                 </Button>

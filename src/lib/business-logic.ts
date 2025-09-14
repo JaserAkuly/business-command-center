@@ -262,7 +262,7 @@ export function formatCurrency(amount: number): string {
 }
 
 export function formatPercentage(value: number): string {
-  return `${Math.ceil(value)}%`
+  return `${Math.round(value)}%`
 }
 
 export function getVarianceColor(variancePct: number): string {

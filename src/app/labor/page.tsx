@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DayComparisonWidget } from '@/components/ui/day-comparison-widget'
+import { formatCurrency } from '@/lib/business-logic'
 import { cn } from '@/lib/utils'
 import { 
   Users, 
@@ -84,15 +86,52 @@ const getStatusIcon = (status: string) => {
 }
 
 export default function LaborPage() {
+  const [shifts, setShifts] = useState(SHIFTS)
+  const [optimizedSchedule, setOptimizedSchedule] = useState(false)
+  const [todaysSales, setTodaysSales] = useState(2847.50)
+  
   const handleCutShift = (shiftId: string) => {
-    console.log('Cutting shift:', shiftId)
-    // In real implementation, this would make API call to scheduling system
+    setShifts(prev => prev.map(shift => {
+      if (shift.id === shiftId) {
+        const cutHours = 2
+        const newCost = shift.cost - (cutHours * (shift.cost / shift.actualHours))
+        return {
+          ...shift,
+          status: 'cut' as const,
+          actualHours: shift.actualHours - cutHours,
+          cost: Math.round(newCost),
+          recommendation: undefined
+        }
+      }
+      return shift
+    }))
   }
 
   const handleApproveSchedule = () => {
-    console.log('Approving optimized schedule')
-    // Would integrate with actual scheduling system
+    setOptimizedSchedule(true)
+    setShifts(prev => prev.map(shift => ({
+      ...shift,
+      recommendation: undefined,
+      cost: shift.recommendation ? shift.cost - 44 : shift.cost
+    })))
+    setTodaysSales(prev => prev + 150) // Simulated sales boost from optimization
+    
+    setTimeout(() => {
+      setOptimizedSchedule(false)
+    }, 3000)
   }
+
+  const handleScheduleSettings = () => {
+    alert('Opening schedule settings...\n\nHere you can configure:\n• Target labor percentages\n• Minimum staffing levels\n• Peak hour requirements\n• Overtime thresholds')
+  }
+
+  const handleWeeklySchedule = () => {
+    alert('Opening weekly schedule view...\n\nFeatures:\n• 7-day schedule overview\n• Staff availability tracking\n• Shift templates\n• Time-off requests')
+  }
+
+  const currentLaborCost = shifts.reduce((sum, shift) => sum + shift.cost, 0)
+  const laborPercentage = (currentLaborCost / todaysSales) * 100
+  const potentialSavings = shifts.reduce((sum, shift) => sum + (shift.recommendation ? 44 : 0), 0)
 
   return (
     <div className="container-premium py-8 space-y-8">
@@ -105,11 +144,11 @@ export default function LaborPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleScheduleSettings}>
             <Settings className="h-4 w-4" />
             Schedule Settings
           </Button>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={handleWeeklySchedule}>
             <Calendar className="h-4 w-4" />
             Weekly Schedule
           </Button>
@@ -125,10 +164,19 @@ export default function LaborPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Today's Labor Cost</span>
               </div>
-              <div className="text-3xl font-bold">$2,847</div>
+              <div className="text-3xl font-bold">{formatCurrency(currentLaborCost)}</div>
               <div className="flex items-center gap-1 text-sm">
-                <TrendingUp className="h-3 w-3 text-destructive" />
-                <span className="text-destructive">2.3% over target</span>
+                {laborPercentage > 32 ? (
+                  <>
+                    <TrendingUp className="h-3 w-3 text-destructive" />
+                    <span className="text-destructive">{Math.round(laborPercentage)}% over target</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-3 w-3 text-success" />
+                    <span className="text-success">Within target range</span>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -173,10 +221,19 @@ export default function LaborPage() {
                 <TrendingDown className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Potential Savings</span>
               </div>
-              <div className="text-3xl font-bold">$127</div>
+              <div className="text-3xl font-bold">{formatCurrency(potentialSavings)}</div>
               <div className="flex items-center gap-1 text-sm">
-                <CheckCircle className="h-3 w-3 text-success" />
-                <span className="text-success">Apply optimizations</span>
+                {potentialSavings > 0 ? (
+                  <>
+                    <TrendingDown className="h-3 w-3 text-success" />
+                    <span className="text-success">Apply optimizations</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-3 w-3 text-success" />
+                    <span className="text-success">Fully optimized</span>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -193,14 +250,19 @@ export default function LaborPage() {
                   <Clock className="h-5 w-5" />
                   <span>Active Shifts</span>
                 </div>
-                <Button size="sm" onClick={handleApproveSchedule} className="gap-1">
+                <Button size="sm" onClick={handleApproveSchedule} className="gap-1" disabled={potentialSavings === 0}>
                   <CheckCircle className="h-4 w-4" />
-                  Apply Optimizations
+                  {optimizedSchedule ? 'Optimizing...' : potentialSavings > 0 ? 'Apply Optimizations' : 'Fully Optimized'}
                 </Button>
+                {optimizedSchedule && (
+                  <div className="absolute top-0 right-0 mt-2 mr-2 bg-success text-success-foreground px-3 py-2 rounded-lg text-sm font-medium">
+                    ✅ Schedule optimized! Sales forecast updated.
+                  </div>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {SHIFTS.map((shift) => (
+              {shifts.map((shift) => (
                 <div key={shift.id} className={cn(
                   "p-4 rounded-lg border transition-all duration-300",
                   getStatusColor(shift.status)
@@ -214,12 +276,19 @@ export default function LaborPage() {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>{shift.startTime} - {shift.endTime}</span>
-                        <span>{shift.actualHours}h @ ${EMPLOYEES.find(e => e.name === shift.employee)?.hourlyWage}/hr</span>
-                        <span className="font-medium">${shift.cost}</span>
+                        <span>{shift.actualHours}h @ {formatCurrency(EMPLOYEES.find(e => e.name === shift.employee)?.hourlyWage || 0)}/hr</span>
+                        <span className={`font-medium ${shift.status === 'cut' ? 'text-destructive' : ''}`}>
+                          {formatCurrency(shift.cost)}
+                        </span>
                       </div>
                       {shift.recommendation && (
-                        <div className="text-sm text-warning bg-warning/10 px-2 py-1 rounded">
-                          💡 {shift.recommendation}
+                        <div className="text-sm text-destructive bg-destructive/10 px-2 py-1 rounded border border-destructive/20">
+                          ⚠️ {shift.recommendation}
+                        </div>
+                      )}
+                      {shift.status === 'cut' && (
+                        <div className="text-sm text-destructive bg-destructive/10 px-2 py-1 rounded border border-destructive/20">
+                          ❌ Shift cut - {formatCurrency(44)} saved
                         </div>
                       )}
                     </div>

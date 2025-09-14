@@ -1,15 +1,27 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '../src/types/supabase'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+// Only initialize when actually running the script
+let supabase: ReturnType<typeof createClient<Database>>
 
-const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+function initializeSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
   }
-})
+  if (!supabaseKey) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+  }
+
+  return createClient<Database>(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 const VENUES = [
   { id: '11111111-1111-1111-1111-111111111111', name: 'Shogun', type: 'restaurant', avgSales: 4500, cogsFood: 0.30, cogsLiquor: 0.20 },
@@ -222,6 +234,9 @@ async function generateCashEnvelopeTransactions(days: number) {
 }
 
 async function main() {
+  // Initialize supabase client
+  supabase = initializeSupabase()
+  
   const numDays = parseInt(process.env.SEED_DAYS || '30')
   
   console.log('🚀 Starting BCC seed process...')

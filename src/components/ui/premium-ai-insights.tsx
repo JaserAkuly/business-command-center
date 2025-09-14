@@ -85,18 +85,19 @@ const PREMIUM_INSIGHTS: AIInsight[] = [
     id: '1',
     category: 'labor',
     severity: 'high',
-    message: "Corner Pocket labor cost at 34.5% (target: 32%). Reduce bartender coverage during 6-8pm to optimize efficiency.",
+    message: "Corner Pocket labor cost at 34.5% (target: 32%). Cut Mike Thompson (bartender, $22/hr) from tonight's 6-8pm shift to save $44.",
     action_data: {
       type: 'schedule_optimization',
-      impact: '$125/day savings',
-      timeframe: 'Immediate',
+      impact: '$85/day savings',
+      timeframe: 'Tonight',
       difficulty: 'easy',
       roi: 2.3,
       steps: [
-        'Review current shift coverage patterns',
-        'Reduce bartender coverage by 1 during 6-8pm',
-        'Monitor customer service impact',
-        'Adjust if necessary'
+        'Contact Mike Thompson (bartender, $22/hr) - highest wage impact',
+        'Remove from tonight\'s 6-8pm shift (2 hours = $44 savings)',
+        'Keep Sarah Chen (bartender, $18/hr) for coverage',
+        'Monitor bar service levels during rush',
+        'Adjust future Thursday schedules based on results'
       ]
     },
     business_date: new Date().toISOString().split('T')[0],
@@ -342,14 +343,35 @@ export function PremiumAIInsights({
           )
         })}
         
-        {insights.length > 4 && (
-          <div className="pt-4 text-center">
+        <div className="pt-4 border-t flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {insights.filter(i => i.action_data && !appliedInsights.has(i.id)).length > 1 && (
+              <Button 
+                size="sm" 
+                onClick={() => {
+                  const applicableInsights = insights.filter(i => i.action_data && !appliedInsights.has(i.id))
+                  applicableInsights.forEach(insight => handleApplyAction(insight))
+                }}
+                className="gap-1"
+              >
+                <Zap className="h-3 w-3" />
+                Apply All ({insights.filter(i => i.action_data && !appliedInsights.has(i.id)).length})
+              </Button>
+            )}
+            {appliedInsights.size > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {appliedInsights.size} actions applied
+              </span>
+            )}
+          </div>
+          
+          {insights.length > 4 && (
             <Button variant="ghost" size="sm" className="gap-2">
               View all {insights.length} insights
               <ArrowRight className="h-3 w-3" />
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   )

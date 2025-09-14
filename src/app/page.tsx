@@ -5,7 +5,9 @@ import { KPIGrid, KPICard } from '@/components/ui/kpi-card'
 import { PremiumKPICard } from '@/components/ui/premium-kpi-card'
 import { GrowthTracker } from '@/components/ui/growth-tracker'
 import { PremiumAIInsights } from '@/components/ui/premium-ai-insights'
+import { DayComparisonWidget } from '@/components/ui/day-comparison-widget'
 import { WelcomeFlow } from '@/components/onboarding/welcome-flow'
+import Link from 'next/link'
 import { useVenues, useVenueSales, useCashEnvelopes, useGrowthGoals, useAIInsights } from '@/hooks/use-bcc-api'
 import { formatCurrency } from '@/lib/business-logic'
 import { REALISTIC_VENUES, generateRealisticDailyData, generateRealisticAIInsights } from '@/lib/realistic-data'
@@ -169,10 +171,12 @@ export default function PortfolioDashboard() {
                 Take Tour
               </Button>
             )}
-            <Button size="sm" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              View Reports
-            </Button>
+            <Link href="/labor">
+              <Button size="sm" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                View Reports
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -235,8 +239,11 @@ export default function PortfolioDashboard() {
           />
         </div>
 
-        {/* Growth Tracker & Quick Stats */}
+        {/* Growth Tracker & Analytics */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Day Comparison - Critical Business Metric */}
+          <DayComparisonWidget />
+          
           <GrowthTracker 
             data={growthData}
             venueData={venueGrowthData}
@@ -245,22 +252,45 @@ export default function PortfolioDashboard() {
             }}
           />
           
-          {/* Executive Summary */}
+          {/* POS Integration Status */}
           <Card className="animate-scale-in hover-lift" style={{ animationDelay: '600ms' }}>
             <CardContent className="p-6 space-y-4">
-              <h3 className="font-semibold text-lg">Executive Summary</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg">System Status</h3>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-success"></div>
+                  <span className="text-xs text-success">All systems operational</span>
+                </div>
+              </div>
+              
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Top Performer</span>
-                  <span className="font-medium text-success">Shogun Sushi</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-success"></div>
+                    <span className="text-sm">Toast POS Integration</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">Live sync • 2min ago</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Priority Actions</span>
-                  <span className="font-medium">{realisticAIInsights.filter(i => i.severity === 'high').length}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-success"></div>
+                    <span className="text-sm">Labor Management</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">When I Work • Active</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground text-sm">Expansion Status</span>
-                  <span className="font-medium text-success">On Track</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-success"></div>
+                    <span className="text-sm">Financial Reporting</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">QuickBooks • Synced</span>
+                </div>
+              </div>
+              
+              <div className="pt-3 border-t">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Data Coverage</span>
+                  <span className="font-medium text-success">100% of venues</span>
                 </div>
               </div>
             </CardContent>
@@ -272,10 +302,12 @@ export default function PortfolioDashboard() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold tracking-tight">Location Performance</h2>
-          <Button variant="outline" size="sm" className="gap-2">
-            <ArrowRight className="h-4 w-4" />
-            View Details
-          </Button>
+          <Link href="/venues">
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowRight className="h-4 w-4" />
+              View Details
+            </Button>
+          </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {realisticVenueData.map((venue, index) => (

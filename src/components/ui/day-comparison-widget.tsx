@@ -52,18 +52,18 @@ const generateComparisonData = (): {
       lastYear: Math.round(180 * (0.70 + Math.random() * 0.3) * seasonalFactor * 0.85)
     },
     avgCheck: {
-      today: 47.20 * (0.98 + Math.random() * 0.08),
-      yesterday: 47.20 * (0.95 + Math.random() * 0.10),
-      lastWeek: 47.20 * (0.92 + Math.random() * 0.12),
-      lastMonth: 47.20 * (0.88 + Math.random() * 0.15),
-      lastYear: 47.20 * (0.80 + Math.random() * 0.20) * seasonalFactor
+      today: Math.round(47.20 * (0.98 + Math.random() * 0.08) * 100) / 100,
+      yesterday: Math.round(47.20 * (0.95 + Math.random() * 0.10) * 100) / 100,
+      lastWeek: Math.round(47.20 * (0.92 + Math.random() * 0.12) * 100) / 100,
+      lastMonth: Math.round(47.20 * (0.88 + Math.random() * 0.15) * 100) / 100,
+      lastYear: Math.round(47.20 * (0.80 + Math.random() * 0.20) * seasonalFactor * 100) / 100
     },
     laborCost: {
-      today: 29.5 + (Math.random() * 6 - 3),
-      yesterday: 31.2 + (Math.random() * 4 - 2),
-      lastWeek: 30.8 + (Math.random() * 5 - 2.5),
-      lastMonth: 32.1 + (Math.random() * 6 - 3),
-      lastYear: 34.5 + (Math.random() * 4 - 2)
+      today: Math.round((29.5 + (Math.random() * 6 - 3)) * 10) / 10,
+      yesterday: Math.round((31.2 + (Math.random() * 4 - 2)) * 10) / 10,
+      lastWeek: Math.round((30.8 + (Math.random() * 5 - 2.5)) * 10) / 10,
+      lastMonth: Math.round((32.1 + (Math.random() * 6 - 3)) * 10) / 10,
+      lastYear: Math.round((34.5 + (Math.random() * 4 - 2)) * 10) / 10
     }
   }
 }
@@ -106,22 +106,22 @@ const ComparisonRow = ({
   const change = calculateChange(current, comparison)
   
   return (
-    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-0">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between py-3 border-b border-border/50 last:border-0 w-full overflow-hidden">
+      <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
         <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
           <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
-        <span className="font-medium text-sm">{label}</span>
+        <span className="font-medium text-sm truncate">{label}</span>
       </div>
       
-      <div className="flex items-center gap-4 text-right">
-        <div className="space-y-1">
-          <div className="font-bold">{formatter(current)}</div>
+      <div className="flex items-center gap-2 text-right min-w-0 flex-shrink">
+        <div className="space-y-1 min-w-0">
+          <div className="font-bold text-sm truncate">{formatter(current)}</div>
           <div className="text-xs text-muted-foreground">Today</div>
         </div>
         
         <div className={cn(
-          "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium min-w-[80px] justify-center",
+          "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium min-w-[70px] justify-center flex-shrink-0",
           change.positive 
             ? "bg-success/10 text-success" 
             : "bg-destructive/10 text-destructive"
@@ -133,11 +133,11 @@ const ComparisonRow = ({
           ) : (
             <TrendingDown className="h-3 w-3" />
           )}
-          {change.value === 0 ? 'No change' : `${change.value.toFixed(1)}%`}
+          <span className="truncate">{change.value === 0 ? 'No change' : `${change.value.toFixed(0)}%`}</span>
         </div>
         
-        <div className="space-y-1 min-w-[60px]">
-          <div className="text-sm text-muted-foreground">{formatter(comparison)}</div>
+        <div className="space-y-1 min-w-[55px] flex-shrink-0">
+          <div className="text-sm text-muted-foreground truncate">{formatter(comparison)}</div>
           <div className="text-xs text-muted-foreground">Previous</div>
         </div>
       </div>

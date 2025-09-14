@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -56,16 +57,25 @@ const getStatusIcon = (status: string) => {
 }
 
 export default function InventoryPage() {
-  const criticalItems = INVENTORY_DATA.filter(item => item.status === 'critical')
-  const warningItems = INVENTORY_DATA.filter(item => item.status === 'warning')
-  const totalValue = INVENTORY_DATA.reduce((sum, item) => sum + (item.currentStock * item.cost), 0)
+  const [inventoryItems, setInventoryItems] = useState(INVENTORY_DATA)
+  const criticalItems = inventoryItems.filter(item => item.status === 'critical')
+  const warningItems = inventoryItems.filter(item => item.status === 'warning')
+  const totalValue = inventoryItems.reduce((sum, item) => sum + (item.currentStock * item.cost), 0)
 
   const handleReorder = (itemId: string) => {
-    const item = INVENTORY_DATA.find(i => i.id === itemId)
+    const item = inventoryItems.find(i => i.id === itemId)
     if (item) {
       const reorderAmount = Math.max(0, item.parLevel - item.currentStock)
       const cost = reorderAmount * item.cost
-      alert(`Reorder initiated for ${item.name}\n\n• Quantity: ${reorderAmount} units\n• Cost: ${formatCurrency(cost)}\n• Supplier: Auto-selected\n• Expected delivery: 2-3 business days\n\n✅ Order sent to supplier!`)
+      
+      // Update the item status to good and increase stock
+      setInventoryItems(prev => prev.map(i => 
+        i.id === itemId 
+          ? { ...i, status: 'good' as const, currentStock: i.parLevel }
+          : i
+      ))
+      
+      alert(`Reorder completed for ${item.name}\n\n• Quantity: ${reorderAmount} units\n• Cost: ${formatCurrency(cost)}\n• Stock replenished to par level\n• Status updated to: Good\n\n✅ Order processed successfully!`)
     }
   }
 
@@ -193,7 +203,7 @@ export default function InventoryPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {INVENTORY_DATA.map((item) => {
+              {inventoryItems.map((item) => {
                 const StatusIcon = getStatusIcon(item.status)
                 const reorderAmount = Math.max(0, item.parLevel - item.currentStock)
                 

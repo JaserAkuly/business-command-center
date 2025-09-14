@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DayComparisonWidget } from '@/components/ui/day-comparison-widget'
+import { Modal, ModalContent, ModalHeader, ModalTitle, ModalDescription, ModalFooter, ModalClose, ModalTrigger } from '@/components/ui/modal'
 import { formatCurrency } from '@/lib/business-logic'
 import { cn } from '@/lib/utils'
 import { 
@@ -67,6 +68,39 @@ const SHIFTS: Shift[] = [
   { id: '4', venue: 'Corner Pocket', date: 'Today', role: 'Server', employee: 'Emily Johnson', startTime: '6:00 PM', endTime: '11:00 PM', plannedHours: 6, actualHours: 5.5, cost: 88, status: 'cut' },
 ]
 
+const WEEKLY_SCHEDULE = [
+  { day: 'Monday', shifts: [
+    { employee: 'Sarah Chen', role: 'Bartender', time: '4:00 PM - 10:00 PM', venue: 'Corner Pocket' },
+    { employee: 'David Rodriguez', role: 'Server', time: '5:00 PM - 12:00 AM', venue: 'Corner Pocket' },
+  ]},
+  { day: 'Tuesday', shifts: [
+    { employee: 'Mike Thompson', role: 'Bartender', time: '6:00 PM - 2:00 AM', venue: 'Corner Pocket' },
+    { employee: 'Emily Johnson', role: 'Server', time: '6:00 PM - 11:00 PM', venue: 'Corner Pocket' },
+  ]},
+  { day: 'Wednesday', shifts: [
+    { employee: 'Sarah Chen', role: 'Bartender', time: '4:00 PM - 10:00 PM', venue: 'Corner Pocket' },
+    { employee: 'James Park', role: 'Kitchen', time: '5:00 PM - 1:00 AM', venue: 'Corner Pocket' },
+  ]},
+  { day: 'Thursday', shifts: [
+    { employee: 'Lisa Wong', role: 'Hibachi Chef', time: '5:00 PM - 1:00 AM', venue: 'Shogun Sushi' },
+    { employee: 'Alex Kumar', role: 'Server', time: '6:00 PM - 12:00 AM', venue: 'Shogun Sushi' },
+  ]},
+  { day: 'Friday', shifts: [
+    { employee: 'Mike Thompson', role: 'Bartender', time: '6:00 PM - 2:00 AM', venue: 'Corner Pocket' },
+    { employee: 'Sarah Chen', role: 'Bartender', time: '4:00 PM - 10:00 PM', venue: 'Corner Pocket' },
+    { employee: 'David Rodriguez', role: 'Server', time: '5:00 PM - 12:00 AM', venue: 'Corner Pocket' },
+  ]},
+  { day: 'Saturday', shifts: [
+    { employee: 'Mike Thompson', role: 'Bartender', time: '6:00 PM - 2:00 AM', venue: 'Corner Pocket' },
+    { employee: 'Emily Johnson', role: 'Server', time: '6:00 PM - 11:00 PM', venue: 'Corner Pocket' },
+    { employee: 'Lisa Wong', role: 'Hibachi Chef', time: '5:00 PM - 1:00 AM', venue: 'Shogun Sushi' },
+  ]},
+  { day: 'Sunday', shifts: [
+    { employee: 'Sarah Chen', role: 'Bartender', time: '4:00 PM - 10:00 PM', venue: 'Corner Pocket' },
+    { employee: 'Alex Kumar', role: 'Server', time: '6:00 PM - 12:00 AM', venue: 'Shogun Sushi' },
+  ]},
+]
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'overtime': return 'status-error'
@@ -121,13 +155,7 @@ export default function LaborPage() {
     }, 3000)
   }
 
-  const handleScheduleSettings = () => {
-    alert('Opening schedule settings...\n\nHere you can configure:\n• Target labor percentages\n• Minimum staffing levels\n• Peak hour requirements\n• Overtime thresholds')
-  }
-
-  const handleWeeklySchedule = () => {
-    alert('Opening weekly schedule view...\n\nFeatures:\n• 7-day schedule overview\n• Staff availability tracking\n• Shift templates\n• Time-off requests')
-  }
+  // Modal handlers are now handled by the Modal components
 
   const currentLaborCost = shifts.reduce((sum, shift) => sum + shift.cost, 0)
   const laborPercentage = (currentLaborCost / todaysSales) * 100
@@ -144,14 +172,115 @@ export default function LaborPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2" onClick={handleScheduleSettings}>
-            <Settings className="h-4 w-4" />
-            Schedule Settings
-          </Button>
-          <Button size="sm" className="gap-2" onClick={handleWeeklySchedule}>
-            <Calendar className="h-4 w-4" />
-            Weekly Schedule
-          </Button>
+          <Modal>
+            <ModalTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings className="h-4 w-4" />
+                Schedule Settings
+              </Button>
+            </ModalTrigger>
+            <ModalContent className="max-w-2xl">
+              <ModalHeader>
+                <ModalTitle>Schedule Settings</ModalTitle>
+                <ModalDescription>
+                  Configure your labor scheduling parameters and thresholds
+                </ModalDescription>
+              </ModalHeader>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Target Labor %</label>
+                    <div className="flex items-center gap-2">
+                      <input className="flex-1 p-2 border rounded" type="number" defaultValue="32" />
+                      <span className="text-sm text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Overtime Threshold</label>
+                    <div className="flex items-center gap-2">
+                      <input className="flex-1 p-2 border rounded" type="number" defaultValue="40" />
+                      <span className="text-sm text-muted-foreground">hours/week</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Minimum Staffing Levels</label>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span className="text-sm">Bartenders (Peak)</span>
+                      <input className="w-16 p-1 text-center border rounded" type="number" defaultValue="2" />
+                    </div>
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span className="text-sm">Servers (Peak)</span>
+                      <input className="w-16 p-1 text-center border rounded" type="number" defaultValue="3" />
+                    </div>
+                    <div className="flex justify-between items-center p-2 border rounded">
+                      <span className="text-sm">Kitchen Staff</span>
+                      <input className="w-16 p-1 text-center border rounded" type="number" defaultValue="2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ModalFooter>
+                <ModalClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </ModalClose>
+                <ModalClose asChild>
+                  <Button>Save Settings</Button>
+                </ModalClose>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+
+          <Modal>
+            <ModalTrigger asChild>
+              <Button size="sm" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Weekly Schedule
+              </Button>
+            </ModalTrigger>
+            <ModalContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+              <ModalHeader>
+                <ModalTitle>Weekly Schedule</ModalTitle>
+                <ModalDescription>
+                  7-day staff schedule overview with shift management
+                </ModalDescription>
+              </ModalHeader>
+              <div className="space-y-4">
+                {WEEKLY_SCHEDULE.map((day, index) => (
+                  <div key={day.day} className="space-y-2">
+                    <h3 className="font-semibold text-lg border-b pb-1">{day.day}</h3>
+                    <div className="grid gap-2">
+                      {day.shifts.map((shift, shiftIndex) => (
+                        <div key={shiftIndex} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="font-medium">{shift.employee}</div>
+                            <Badge variant="secondary">{shift.role}</Badge>
+                            <Badge variant="outline">{shift.venue}</Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">{shift.time}</span>
+                            {shifts.some(s => s.employee === shift.employee && s.status === 'cut') && (
+                              <Badge variant="destructive" className="text-xs">Cut</Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {day.shifts.length === 0 && (
+                        <div className="text-sm text-muted-foreground italic p-2">No shifts scheduled</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <ModalFooter>
+                <ModalClose asChild>
+                  <Button variant="outline">Close</Button>
+                </ModalClose>
+                <Button>Edit Schedule</Button>
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
         </div>
       </div>
 

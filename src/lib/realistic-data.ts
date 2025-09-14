@@ -123,8 +123,14 @@ export const generateRealisticAIInsights = (venueData: any[], date: Date) => {
   const insights = []
   
   for (const venue of venueData) {
-    const config = REALISTIC_VENUES[venue.name.toLowerCase().replace(/[^a-z]/g, '') as keyof typeof REALISTIC_VENUES]
-    if (!config) continue
+    if (!venue?.venue_name) continue
+    
+    const venueKey = Object.keys(REALISTIC_VENUES).find(key => 
+      REALISTIC_VENUES[key as keyof typeof REALISTIC_VENUES].name === venue.venue_name
+    )
+    
+    if (!venueKey) continue
+    const config = REALISTIC_VENUES[venueKey as keyof typeof REALISTIC_VENUES]
     
     const laborPct = (venue.labor_cost / venue.net_sales) * 100
     const salesTrend = config.trends.salesGrowth

@@ -55,7 +55,9 @@ export default function PortfolioDashboard() {
     }
   })
   
-  const realisticAIInsights = generateRealisticAIInsights(realisticVenueData, yesterday)
+  const realisticAIInsights = realisticVenueData.length > 0 
+    ? generateRealisticAIInsights(realisticVenueData, yesterday) 
+    : []
 
   if (venuesLoading && !showOnboarding) {
     return (
@@ -297,6 +299,10 @@ function VenueCashOverview({
   }
   
   const getPerformanceIndicator = () => {
+    if (!venue?.venue_name || !venue?.net_sales) {
+      return { text: 'Good', color: 'text-blue-600' }
+    }
+    
     const avgDailySales = Object.values(REALISTIC_VENUES).find(v => 
       v.name === venue.venue_name
     )?.avgDailySales || 5000
